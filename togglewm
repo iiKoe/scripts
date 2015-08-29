@@ -4,15 +4,15 @@
 if pgrep "kwin" > /dev/null ; then
   pkill kwin
   pkill plasma-desktop
-  sleep 1
-  exec i3 > /dev/null &
+  sleep 3
+  exec i3 > /dev/null 2>&1 &
 elif pgrep "i3" > /dev/null ; then
   pkill i3
   pkill plasma-desktop
   sleep 1
-  exec kwin --replace > /dev/null &
+  exec kwin --replace > /dev/null 2>&1 &
   sleep 1
-  exec plasma-desktop > /dev/null &
+  exec plasma-desktop > /dev/null 2>&1 &
 else
   echo "No specified window managers found."
 fi
