@@ -1,0 +1,19 @@
+#!/bin/bash
+# Toggle between KDE and i3 without closing applications.
+
+if pgrep "kwin" > /dev/null ; then
+  pkill kwin
+  pkill plasma-desktop
+  sleep 1
+  exec i3 > /dev/null &
+elif pgrep "i3" > /dev/null ; then
+  pkill i3
+  pkill plasma-desktop
+  sleep 1
+  exec kwin --replace > /dev/null &
+  sleep 1
+  exec plasma-desktop > /dev/null &
+else
+  echo "No specified window managers found."
+fi
+
