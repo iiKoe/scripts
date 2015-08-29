@@ -1,0 +1,52 @@
+#!/bin/bash
+# for the pico2wave program.
+
+LINES=300
+SN=4
+
+FILE=$1
+
+if [ -z $1 ]; then
+    echo "No arguments passed"
+fi
+if [ ! -f $FILE ]; then
+    echo "File not found"
+    exit -1
+fi
+
+OUTN=${FILE%.*}
+FBASE=$OUTN"_"
+
+echo Splitting files
+split -l $LINES -d -a $SN --additional-suffix=.txt $1 $FBASE
+
+echo Converting text to wav "(TTS)"
+for f in $FBASE*.txt
+do
+    fn="${f%.*}"
+    echo "Converting $fn"
+    pico2wave -w $fn.wav "$(cat $f)"
+    echo "Converting wav to mp3"
+    avconv -i $fn.wav $fn.mp3
+    rm -f $fn.wav
+done
+
+echo Merging .mp3 files
+FL=""
+for f in $FBASE*.mp3
+do
+    if [ -z "$FL" ]; then
+       FL=$f 
+    else
+	FL+="|$f"
+    fi  
+done
+
+echo $FL
+
+avconv -i "concat:$FL" -c copy $OUTN.mp3
+
+echo Cleaning up
+rm -f $FBASE*.mp3 $FBASE*.txt
+
+echo Done
